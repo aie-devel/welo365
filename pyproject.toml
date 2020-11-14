@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "welo365"
+version = "0.1.0"
+description = "'Project management tools for interacting with O365 API.'"
+authors = ["welocalize <aie-devel@welocalize.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+O365 = "^2.0.11"
+selenium = "^3.141.0"
+pathlib = "^1.0.1"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.790"
+pylint = "^2.6.0"
+ipython = "^7.19.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
