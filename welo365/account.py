@@ -77,7 +77,7 @@ class O365Account:
         self.account = Account(self.creds, auth_flow_type='authorization', scopes=scopes)
         self.con = self.account.con
         if scrape:
-            self.con = self.scrape(self.con, scopes)
+            self.con = self.scrape(self.con, self.scopes)
         if not self.account.is_authenticated:
             self.authenticate()
 
