@@ -9,7 +9,7 @@ from pathlib import Path
 
 from O365 import Account, Connection
 from O365.drive import Folder
-from O365.excel import WorkBook, WorkSheet
+from O365.excel import WorkSheet
 from selenium import webdriver
 
 
@@ -29,21 +29,18 @@ fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
 
-creds = ('37aba2ba-24ac-4a9b-9553-15967ff85768', 'IO53Ev.b0T.D9_t00Hd7tsijl.GR7-u-3_')
 scopes = ['offline_access', 'Sites.Manage.All']
-domains = ['Finance', 'Healthcare', 'Media_Cable', 'Insurance', 'Travel', 'Airlines', 'Fast_Food', 'Retail']
-folder_path = 'General/Production_files'
-site_path = '/sites/ja-JPLexRework'
 
 def get_item(self, item_name: str):
     for item in self.get_items():
         if item_name.lower() in item.name:
             return item
 
+
 Folder.get_item = get_item
 
 
-def protect_worksheet(self):
+def protect(self):
     payload = {
         'options': {
             'allowFormatCells': False,
@@ -62,14 +59,13 @@ def protect_worksheet(self):
     return bool(self.session.post(json=payload))
 
 
-def unprotect_worksheet(self):
-    if self.session_id:
+def unprotect(self):
     url = self.build_url('/protection/unprotect')
-    return bool(self.session.post(url)
-    return bool(response)
+    return bool(self.session.post(url))
 
 
-WorkBook.
+WorkSheet.protect = protect
+WorkSheet.unprotect = unprotect
 
 
 class O365Account:
@@ -148,26 +144,3 @@ class O365Account:
             except:
                 raise ('Path {} not exist.'.format(folder_path))
         return subfolder_drive
-
-    def protect_worksheet(self, worksheet: WorkSheet):
-        payload = {
-            'options': {
-                'allowFormatCells': False,
-                'allowFormatColumns': False,
-                'allowFormatRows': False,
-                'allowInsertColumns': False,
-                'allowInsertRows': False,
-                'allowInsertHyperlinks': False,
-                'allowDeleteColumns': False,
-                'allowDeleteRows': False,
-                'allowSort': True,
-                'allowAutoFilter': True,
-                'allowPivotTables': True
-            }
-        }
-        response = self.con.post(worksheet.build_url('/protection/protect'), json=payload)
-        return bool(response.status_code in [200, 204])
-
-    def unprotect_worksheet(self, worksheet: WorkSheet):
-        response = self.con.post(worksheet.build_url('/protection/unprotect'))
-        return bool(response.status_code in [200, 204])
