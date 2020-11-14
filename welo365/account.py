@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
-import datetime
-import re
-
-from pathlib import Path
 
 from O365 import Account, Connection
 from O365.drive import Folder
 from O365.excel import WorkSheet
+from pathlib import Path
 from selenium import webdriver
-
 
 logfile = Path.cwd() / 'output.log'
 logger = logging.getLogger(__name__)
@@ -29,11 +26,9 @@ fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
 
-scopes = ['offline_access', 'Sites.Manage.All']
-
 def get_item(self, item_name: str):
     for item in self.get_items():
-        if item_name.lower() in item.name:
+        if item_name.lower() in item.name.lower():
             return item
 
 
@@ -60,18 +55,25 @@ def protect(self):
 
 
 def unprotect(self):
-    url = self.build_url('/protection/unprotect')
-    return bool(self.session.post(url))
+    bool(self.build_url('/protection/unprotect'))
 
 
 WorkSheet.protect = protect
 WorkSheet.unprotect = unprotect
 
 
+class Folder(Folder):
+    pass
+
+
+class WorkSheet(WorkSheet):
+    pass
+
+
 class O365Account:
-    def __init__(self, creds: tuple[str, str], scopes: list[str], scrape: bool = True):
-        self.creds = creds
-        self.scopes = scopes
+    def __init__(self, creds: tuple[str, str] = None, scopes: list[str] = None, scrape: bool = True):
+        self.creds = creds or (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
+        self.scopes = scopes or ['offline_access', 'Sites.Manage.All']
         self.account = Account(self.creds, auth_flow_type='authorization', scopes=scopes)
         self.con = self.account.con
         if scrape:
@@ -95,11 +97,11 @@ class O365Account:
         driver.get(auth_url)
         driver.implicitly_wait(5)
         email = driver.find_element_by_xpath('.//input[@type="email"]')
-        email.send_keys('ryan.orourke@welocalize.com')
+        email.send_keys(os.environ.get('okta_username'))
         submit = driver.find_element_by_xpath('.//input[@type="submit"]')
         submit.click()
         password = driver.find_element_by_xpath('.//input[@type="password"]')
-        password.send_keys('Raor0812')
+        password.send_keys(os.environ.get('okta_password'))
         submit = driver.find_element_by_xpath('.//input[@value="Sign in"]')
         submit.click()
         driver.implicitly_wait(15)
