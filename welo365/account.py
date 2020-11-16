@@ -126,7 +126,7 @@ class O365Account(Account):
     def get_folder(self, *subfolders: str, site: str = None):
         if len(subfolders) == 0:
             return self.drive
-        
+
         drive = self.get_site(site}.get_default_document_library() if site else self.drive
 
         if subfolders[0] != 'General':
