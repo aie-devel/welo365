@@ -127,7 +127,8 @@ class O365Account(Account):
         if len(subfolders) == 0:
             return self.drive
 
-        drive = self.get_site(site).get_default_document_library() if site else self.drive
+        site = self.get_site(site) if site else self.site
+        drive = site.get_default_document_library() if site else self.drive
 
         if subfolders[0] not in ['General', 'Documents']:
             subfolders = ['General', *subfolders]
