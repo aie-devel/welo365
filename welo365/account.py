@@ -134,9 +134,11 @@ class O365Account(Account):
         #    subfolders = ['General', *subfolders]
 
         items = drive.get_items()
+        print(f"{items=}")
         for subfolder in subfolders:
             try:
                 subfolder_drive = list(filter(lambda x: subfolder in x.name, items))[0]
+                print(f"{subfolder_drive=}")
                 items = subfolder_drive.get_items()
             except:
                 raise ('Path {} not exist.'.format('/'.join(subfolders)))
