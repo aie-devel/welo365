@@ -81,15 +81,15 @@ class O365Account(Account):
     ):
         creds = creds or (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
-        super().__init__(creds=creds, scopes=scopes, auth_flow_type=auth_flow_type)
+        super().__init__(creds, scopes=scopes, auth_flow_type=auth_flow_type)
         if scrape:
             self.scrape(scopes)
         if not self.is_authenticated:
             self.authenticate()
-        self.drives = self.storage.get_drives()
-        self.my_drive = self.storage.get_default_drive()
-        self.site = site
-        self.root_folder = self.my_drive.get_root_folder()
+        self.drives = self.storage().get_drives()
+        self.site = self.sharepoint().get_site('welocalize.sharepoint.com', f"/sites/{site}") if site else None
+        self.drive = self.site.get_default_document_library() if self.site else self.storage().get_default_drive()
+        self.root_folder = self.drive.get_root_folder()
 
     def scrape(self, scopes: list[str]):
         chrome_options = webdriver.ChromeOptions()
@@ -118,31 +118,18 @@ class O365Account(Account):
     def authenticate(self):
         result = self.authenticate()
 
-    def get_drive(self):
-        return self.my_drive
-
-    def get_root_folder(self):
-        return self.root_folder
-
-    def get_folder_from_path(self, *subfolders: str):
-        folder_path = folder_path[1:] if folder_path[0] == '/' else folder_path
-
-        if folder_path is None:
-            return self.my_drive
-
+    def get_folder(self, *subfolders: str):
         if len(subfolders) == 0:
-            return self.my_drive
+            return self.drive
 
-        if site:
-            self.site = self.sharepoint().get_site('welocalize.sharepoint.com', site)
+        if subfolders[0] != 'General':
+            subfolders = ['General', *subfolders]
 
-        drive = self.site.get_default_document_library() if self.site else self.my_drive
-
-        items = drive.get_items()
+        items = self.drive.get_items()
         for subfolder in subfolders:
             try:
                 subfolder_drive = list(filter(lambda x: subfolder in x.name, items))[0]
                 items = subfolder_drive.get_items()
             except:
-                raise ('Path {} not exist.'.format(folder_path))
+                raise ('Path {} not exist.'.format('/'.join(subfolders)))
         return subfolder_drive
