@@ -76,11 +76,12 @@ class O365Account(Account):
             site: str = None,
             creds: tuple[str, str] = None,
             scopes: list[str] = None,
+            auth_flow_type: str = 'authorization',
             scrape: bool = False
     ):
         creds = creds or (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
-        super().__init__(creds=creds, scopes=scopes)
+        super().__init__(creds=creds, scopes=scopes, auth_flow_type=auth_flow_type)
         if scrape:
             self.scrape(scopes)
         if not self.is_authenticated:
