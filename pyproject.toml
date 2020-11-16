@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "welo365"
-version = "0.4.4"
+version = "0.4.6"
 description = "'Project management tools for interacting with O365 API.'"
 authors = ["welocalize <aie-devel@welocalize.com>"]
 license = "MIT"
