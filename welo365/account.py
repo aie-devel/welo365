@@ -25,6 +25,8 @@ fh.setFormatter(formatter)
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
+DOMAIN = 'welocalize.sharepoint.com'
+
 
 def get_item(self, item_name: str):
     for item in self.get_items():
@@ -87,7 +89,7 @@ class O365Account(Account):
         if not self.is_authenticated:
             self.authenticate()
         self.drives = self.storage().get_drives()
-        self.site = self.sharepoint().get_site('welocalize.sharepoint.com', f"/sites/{site}") if site else None
+        self.site = self.get_site(site) if site else None
         self.drive = self.site.get_default_document_library() if self.site else self.storage().get_default_drive()
         self.root_folder = self.drive.get_root_folder()
 
@@ -118,11 +120,14 @@ class O365Account(Account):
     def authenticate(self):
         result = self.authenticate()
 
+    def get_site(self, site: str):
+        return self.sharepoint().get_site(DOMAIN, f"/sites/{site}")
+
     def get_folder(self, *subfolders: str, site: str = None):
         if len(subfolders) == 0:
             return self.drive
-
-        drive = self.sharepoint().get_site(f"/sites/{site}").get_default_document_library() if site else self.drive
+        
+        drive = self.get_site(site}.get_default_document_library() if site else self.drive
 
         if subfolders[0] != 'General':
             subfolders = ['General', *subfolders]
