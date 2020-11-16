@@ -124,6 +124,7 @@ class O365Account(Account):
         return self.sharepoint().get_site(DOMAIN, f"/sites/{site}")
 
     def get_folder(self, *subfolders: str, site: str = None):
+        print(f"Folder query = {'/'.join(subfolders)}.")
         if len(subfolders) == 0:
             return self.drive
 
