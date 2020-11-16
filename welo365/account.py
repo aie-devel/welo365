@@ -118,14 +118,16 @@ class O365Account(Account):
     def authenticate(self):
         result = self.authenticate()
 
-    def get_folder(self, *subfolders: str):
+    def get_folder(self, *subfolders: str, site: str = None):
         if len(subfolders) == 0:
             return self.drive
+
+        drive = self.sharepoint().get_site(f"/sites/{site}").get_default_document_library() if site else self.drive
 
         if subfolders[0] != 'General':
             subfolders = ['General', *subfolders]
 
-        items = self.drive.get_items()
+        items = drive.get_items()
         for subfolder in subfolders:
             try:
                 subfolder_drive = list(filter(lambda x: subfolder in x.name, items))[0]
