@@ -90,8 +90,10 @@ class O365Account(Account):
         for token_path in [WORKDIR, *WORKDIR.parents]:
             TOKEN = token_path / 'o365_token.txt'
             if TOKEN.exists():
-                token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN)
+                token_backend = FileSystemTokenBackend(token_path=token_path)
+                token_backend.load_token()
                 logger.debug(f"Using existing token to create {token_backend=}")
+                logger.info(f"{token_backend.token=}")
                 break
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
         OPTIONS = {
