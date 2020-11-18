@@ -79,7 +79,7 @@ class O365Account(Account):
     def __init__(
             self,
             site: str = None,
-            creds: tuple[str, str] = None,
+            creds: tuple[str, str] = CREDS,
             scopes: list[str] = None,
             auth_flow_type: str = 'authorization',
             scrape: bool = False
