@@ -85,12 +85,14 @@ class O365Account(Account):
     ):
         if not creds:
             creds = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
+        logger.info(f"{creds=}")
         WORKDIR = Path.cwd()
         token_backend = None
         for token_path in [WORKDIR, *WORKDIR.parents]:
             TOKEN = token_path / 'o365_token.txt'
             if TOKEN.exists():
                 token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN)
+                logger.info(f"Using existing token to create {token_backend=}")
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
         OPTIONS = {
             'token_backend': token_backend
