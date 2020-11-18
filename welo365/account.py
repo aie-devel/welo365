@@ -85,7 +85,7 @@ class O365Account(Account):
     ):
         if not creds:
             creds = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
-        WORKDIR = Path.getcwd()
+        WORKDIR = Path.cwd()
         token_backend = None
         for token_path in [WORKDIR, *WORKDIR.parents]:
             TOKEN = token_path / 'o365_token.txt'
