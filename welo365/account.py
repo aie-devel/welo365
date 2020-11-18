@@ -107,7 +107,7 @@ class O365Account(Account):
             'auth_flow_type': auth_flow_type
         }
         super().__init__(creds, **OPTIONS)
-        self.con.session = self.con.get_session(load_token=True)
+        logger.info(f"{self.con.refresh_token()=}")
         logger.info(f"{scrape=}")
         logger.info(f"{self.is_authenticated=}")
         if scrape:
