@@ -4,7 +4,9 @@ import logging
 import os
 import sys
 
-from O365 import Account, Connection
+from pathlib import Path
+
+from O365 import Account, FileSystemTokenBackend
 from O365.drive import Folder
 from O365.excel import WorkSheet
 from pathlib import Path
@@ -81,9 +83,22 @@ class O365Account(Account):
             auth_flow_type: str = 'authorization',
             scrape: bool = False
     ):
-        creds = creds or (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
+        if not creds:
+            creds = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
+        WORKDIR = Path.getcwd()
+        token_backend = None
+        for token_path in [WORKDIR, *WORKDIR.parents]:
+            TOKEN = token_path / 'o365_token.txt'
+            if TOKEN.exists():
+                token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN)
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
-        super().__init__(creds, scopes=scopes, auth_flow_type=auth_flow_type)
+        OPTIONS = {
+            'token_backend': token_backend
+        } if token_backend is not None else {
+            'scopes': scopes,
+            'auth_flow_type': auth_flow_type
+        }
+        super().__init__(creds, **OPTIONS)
         if scrape:
             self.scrape(scopes)
         if not self.is_authenticated:
