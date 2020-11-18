@@ -90,8 +90,11 @@ class O365Account(Account):
         for token_path in [WORKDIR, *WORKDIR.parents]:
             TOKEN = token_path / 'o365_token.txt'
             if TOKEN.exists():
+                logger.info(f"{token_path=}")
+                logger.info(f"{TOKEN=}")
                 token_backend = FileSystemTokenBackend(token_path=token_path)
                 token_backend.load_token()
+                token_backend.get_token()
                 logger.debug(f"Using existing token to create {token_backend=}")
                 logger.info(f"{token_backend.token=}")
                 break
@@ -103,6 +106,9 @@ class O365Account(Account):
             'auth_flow_type': auth_flow_type
         }
         super().__init__(creds, **OPTIONS)
+        self.con.session = self.con.get_session(load_token=True)
+        logger.info(f"{scrape=}")
+        logger.info(f"{self.is_authenticated=}")
         if scrape:
             self.scrape(scopes)
         if not self.is_authenticated:
