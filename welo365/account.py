@@ -28,6 +28,7 @@ fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
 DOMAIN = 'welocalize.sharepoint.com'
+CREDS = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
 
 
 def get_item(self, item_name: str):
@@ -83,9 +84,7 @@ class O365Account(Account):
             auth_flow_type: str = 'authorization',
             scrape: bool = False
     ):
-        if not creds:
-            creds = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
-            logger.info(f"{creds=}")
+        logger.info(f"{self.creds=}")
         WORKDIR = Path.cwd()
         token_backend = None
         for token_path in [WORKDIR, *WORKDIR.parents]:
