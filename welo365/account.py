@@ -84,7 +84,7 @@ class O365Account(Account):
             auth_flow_type: str = 'authorization',
             scrape: bool = False
     ):
-        logger.info(f"{self.creds=}")
+        logger.info(f"{creds=}")
         WORKDIR = Path.cwd()
         token_backend = None
         for token_path in [WORKDIR, *WORKDIR.parents]:
