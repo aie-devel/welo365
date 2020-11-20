@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 from O365.excel import Range as _Range
@@ -12,7 +14,7 @@ class Range(_Range):
         super().__init__(address)
         self.matchgroup = re.search(self.pattern, self.address).groupdict()
 
-    def update(self, values: list[list]):
+    def update(self, values: list):
         self.values = values
         super().update()
 
