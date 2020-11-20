@@ -1,6 +1,7 @@
 from O365.drive import Drive as _Drive
 from O365.drive import Folder as _Folder
 from O365.drive import Storage as _Storage
+from O365.drive import Image, Photo, File
 
 
 class Folder(_Folder):
@@ -21,7 +22,12 @@ class Drive(_Drive):
     def _classifier(item):
         if 'folder' in item:
             return Folder
-        super()._classifier(item)
+        elif 'image' in item:
+            return Image
+        elif 'photo' in item:
+            return Photo
+        else:
+            return File
 
 
 class Storage(_Storage):
