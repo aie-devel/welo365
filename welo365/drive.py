@@ -13,6 +13,17 @@ class Folder(_Folder):
             if item_name.lower() in item.name.lower():
                 return item
 
+    @staticmethod
+    def _classifier(item):
+        if 'folder' in item:
+            return Folder
+        elif 'image' in item:
+            return Image
+        elif 'photo' in item:
+            return Photo
+        else:
+            return File
+
 
 class Drive(_Drive):
     def __init__(self, *, parent=None, con=None, **kwargs):
