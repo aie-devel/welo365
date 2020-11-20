@@ -4,13 +4,11 @@ import logging
 import os
 import sys
 
+from O365 import Account, FileSystemTokenBackend
+from O365.connection import MSGraphProtocol
 from pathlib import Path
 
-from O365 import Account, FileSystemTokenBackend
-from O365.drive import Folder
-from O365.excel import WorkSheet
-from pathlib import Path
-from selenium import webdriver
+from welo365.sharepoint import Sharepoint
 
 logfile = Path.cwd() / 'output.log'
 logger = logging.getLogger(__name__)
@@ -31,58 +29,13 @@ DOMAIN = 'welocalize.sharepoint.com'
 CREDS = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
 
 
-def get_item(self, item_name: str):
-    for item in self.get_items():
-        if item_name.lower() in item.name.lower():
-            return item
-
-
-Folder.get_item = get_item
-
-
-def protect(self):
-    payload = {
-        'options': {
-            'allowFormatCells': False,
-            'allowFormatColumns': False,
-            'allowFormatRows': False,
-            'allowInsertColumns': False,
-            'allowInsertRows': False,
-            'allowInsertHyperlinks': False,
-            'allowDeleteColumns': False,
-            'allowDeleteRows': False,
-            'allowSort': True,
-            'allowAutoFilter': True,
-            'allowPivotTables': True
-        }
-    }
-    return bool(self.session.post(json=payload))
-
-
-def unprotect(self):
-    bool(self.build_url('/protection/unprotect'))
-
-
-WorkSheet.protect = protect
-WorkSheet.unprotect = unprotect
-
-
-class Folder(Folder):
-    pass
-
-
-class WorkSheet(WorkSheet):
-    pass
-
-
 class O365Account(Account):
     def __init__(
             self,
             site: str = None,
             creds: tuple[str, str] = CREDS,
             scopes: list[str] = None,
-            auth_flow_type: str = 'authorization',
-            scrape: bool = False
+            auth_flow_type: str = 'authorization'
     ):
         WORKDIR = Path.cwd()
         token_backend = None
@@ -101,8 +54,8 @@ class O365Account(Account):
             'auth_flow_type': auth_flow_type
         }
         super().__init__(creds, **OPTIONS)
-        if scrape:
-            self.scrape(scopes)
+        # if scrape:
+        #     self.scrape(scopes)
         if not self.is_authenticated:
             self.authenticate()
         self.drives = self.storage().get_drives()
@@ -110,32 +63,15 @@ class O365Account(Account):
         self.drive = self.site.get_default_document_library() if self.site else self.storage().get_default_drive()
         self.root_folder = self.drive.get_root_folder()
 
-    def scrape(self, scopes: list[str]):
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
-        driver = webdriver.Chrome(options=chrome_options)
-        auth_url, _ = self.con.get_authorization_url(requested_scopes=scopes)
-        driver.get(auth_url)
-        driver.implicitly_wait(5)
-        email = driver.find_element_by_xpath('.//input[@type="email"]')
-        email.send_keys(os.environ.get('okta_username'))
-        submit = driver.find_element_by_xpath('.//input[@type="submit"]')
-        submit.click()
-        password = driver.find_element_by_xpath('.//input[@type="password"]')
-        password.send_keys(os.environ.get('okta_password'))
-        submit = driver.find_element_by_xpath('.//input[@value="Sign in"]')
-        submit.click()
-        driver.implicitly_wait(15)
-        checkbox = driver.find_element_by_xpath('.//input[@type="checkbox"]')
-        checkbox.click()
-        submit = driver.find_element_by_xpath('.//input[@value="Yes"]')
-        submit.click()
-        driver.implicitly_wait(3)
-        self.con.request_token(driver.current_url)
-        driver.quit()
-
     def authenticate(self):
         result = self.authenticate()
+
+    def sharepoint(self, *, resource=''):
+        if not isinstance(self.protocol, MSGraphProtocol):
+            raise RuntimeError(
+                'Sharepoint api only works on Microsoft Graph API'
+            )
+        return Sharepoint(parent=self, main_resource=resource)
 
     def get_site(self, site: str):
         return self.sharepoint().get_site(DOMAIN, f"/sites/{site}")
@@ -146,9 +82,6 @@ class O365Account(Account):
 
         site = self.get_site(site) if site else self.site
         drive = site.get_default_document_library() if site else self.drive
-
-        # if subfolders[0] not in ['General', 'Documents']:
-        #    subfolders = ['General', *subfolders]
 
         items = drive.get_items()
         for subfolder in subfolders:
