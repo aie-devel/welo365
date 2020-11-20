@@ -29,3 +29,9 @@ class Storage(_Storage):
 
     def __init__(self, *, parent=None, con=None, **kwargs):
         super().__init__(parent=parent, con=con, **kwargs)
+
+    def get_default_drive(self, request_drive=False):
+        if request_drive is False:
+            return Drive(con=self.con, protocol=self.protocol,
+                         main_resource=self.main_resource, name='Default Drive')
+        super().get_default_drive(request_drive=request_drive)
