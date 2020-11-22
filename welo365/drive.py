@@ -40,6 +40,10 @@ class Drive(_Drive):
         else:
             return File
 
+    def get_item_by_path(self, *parts: str):
+        item_path = f"/{'/'.join(parts)}"
+        super().get_item_by_path(item_path)
+
 
 class Storage(_Storage):
     drive_constructor = Drive
