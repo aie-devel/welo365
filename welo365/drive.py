@@ -42,6 +42,7 @@ class Drive(_Drive):
 
     def get_item_by_path(self, *parts: str):
         item_path = f"/{'/'.join(parts)}"
+        print(f"{item_path=}")
         super().get_item_by_path(item_path)
 
 
