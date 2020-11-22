@@ -1,7 +1,12 @@
+import logging
+
 from O365.drive import Drive as _Drive
 from O365.drive import Folder as _Folder
 from O365.drive import Storage as _Storage
 from O365.drive import Image, Photo, File
+
+
+logger = logging.getLogger(__name__)
 
 
 class Folder(_Folder):
@@ -42,9 +47,20 @@ class Drive(_Drive):
 
     def get_item_by_path(self, *parts: str):
         item_path = f"/{'/'.join(parts)}"
-        print(f"{item_path=}")
-        super().get_item_by_path(item_path)
-
+        logger.info(f"{item_path=}")
+        if self.object_id:
+            url = self.build_url(
+                self._endpoints.get('get_item_by_path').format(id=self.object_id,
+                                                               item_path=item_path))
+        else:
+            url = self.build_url(
+                self._endpoints.get('get_item_by_path_default').format(item_path=item_path))
+        response = self.con.get(url)
+        if not response:
+            return None
+        data = response.json()
+        return self._classifier(data)(parent=self,
+                                      **{self._cloud_data_key: data})
 
 class Storage(_Storage):
     drive_constructor = Drive
