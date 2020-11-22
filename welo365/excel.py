@@ -10,8 +10,8 @@ from O365.excel import WorkSheet as _WorkSheet
 class Range(_Range):
     pattern = r'^.*!(?P<left>[A-Z]+)(?P<top>[0-9]+)(:(?P<right>[A-Z]+)(?P<bottom>[0-9]+))?$'
 
-    def __init__(self, parent):
-        super().__init__(address)
+    def __init__(self, parent=None, session=None, **kwargs):
+        super().__init__(parent=parent, session=session, **kwargs)
         self.matchgroup = re.search(self.pattern, self.address).groupdict()
 
     def update(self, values: list):
