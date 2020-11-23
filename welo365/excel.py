@@ -54,10 +54,12 @@ class WorkSheet(_WorkSheet):
                 'allowPivotTables': True
             }
         }
-        return bool(self.session.post(json=payload))
+        url = self.build_url('/protection/protect')
+        return bool(self.session.post(url, json=payload))
 
     def unprotect(self):
-        bool(self.build_url('/protection/unprotect'))
+        url = self.build_url('/protection/unprotect')
+        return bool(self.session.post(url))
 
 
 class WorkBook(_WorkBook):
