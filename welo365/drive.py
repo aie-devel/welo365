@@ -1,4 +1,5 @@
 import logging
+import requests
 
 from O365.drive import Drive as _Drive
 from O365.drive import Folder as _Folder
@@ -55,12 +56,17 @@ class Drive(_Drive):
         else:
             url = self.build_url(
                 self._endpoints.get('get_item_by_path_default').format(item_path=item_path))
-        response = self.con.get(url)
-        if not response:
-            return None
-        data = response.json()
-        return self._classifier(data)(parent=self,
-                                      **{self._cloud_data_key: data})
+        try:
+            response = self.con.get(url)
+            if not response:
+                return None
+            data = response.json()
+            return self._classifier(data)(
+                parent=self,
+                **{self._cloud_data_key: data}
+            )
+        except requests.exceptions.HTTPError:
+            return
 
 class Storage(_Storage):
     drive_constructor = Drive
