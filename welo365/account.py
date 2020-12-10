@@ -63,9 +63,6 @@ class O365Account(Account):
         self.drive = self.site.get_default_document_library() if self.site else self.storage().get_default_drive()
         self.root_folder = self.drive.get_root_folder()
 
-    def authenticate(self):
-        result = self.authenticate()
-
     def sharepoint(self, *, resource=''):
         if not isinstance(self.protocol, MSGraphProtocol):
             raise RuntimeError(
