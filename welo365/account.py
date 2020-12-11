@@ -42,6 +42,7 @@ class O365Account(Account):
         for token_path in [WORKDIR, *WORKDIR.parents]:
             TOKEN = token_path / 'o365_token.txt'
             if TOKEN.exists():
+                logger.info(f"Using token file {TOKEN}")
                 token_backend = FileSystemTokenBackend(token_path=token_path)
                 token_backend.load_token()
                 token_backend.get_token()
