@@ -8,7 +8,7 @@ from O365 import Account, FileSystemTokenBackend
 from O365.connection import MSGraphProtocol
 from pathlib import Path
 
-from welo365.sharepoint import Sharepoint
+from welo365.welo365.sharepoint import Sharepoint
 
 logfile = Path.cwd() / 'output.log'
 logger = logging.getLogger(__name__)

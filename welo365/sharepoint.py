@@ -1,7 +1,7 @@
 from O365.sharepoint import Sharepoint as _Sharepoint
 from O365.sharepoint import Site as _Site
 
-from welo365.drive import Storage
+from welo365.welo365.drive import Storage
 
 
 class Site(_Site):
