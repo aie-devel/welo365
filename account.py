@@ -3,27 +3,16 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import re
 
 from O365 import Account, FileSystemTokenBackend
 from O365.connection import MSGraphProtocol
 from pathlib import Path
 
 from welo365.sharepoint import Sharepoint
+from welo365.logger import get_logger
 
-logfile = Path.cwd() / 'output.log'
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-date_format = "%H:%M:%S"
-formatter = logging.Formatter(log_format, date_format)
-ch = logging.StreamHandler(sys.stderr)
-ch.setFormatter(formatter)
-ch.setLevel(logging.INFO)
-logger.addHandler(ch)
-fh = logging.FileHandler(logfile)
-fh.setFormatter(formatter)
-fh.setLevel(logging.DEBUG)
-logger.addHandler(fh)
+logger = get_logger(__name__)
 
 DOMAIN = 'welocalize.sharepoint.com'
 CREDS = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
@@ -71,6 +60,15 @@ class O365Account(Account):
 
     def get_site(self, site: str):
         return self.sharepoint().get_site(DOMAIN, f"/sites/{site}")
+
+    def get_item_by_url(self, web_url: str):
+        matches = re.search(r'^.*sites/(?P<site>[\w_-]+)/.*&file=(?P<file_name>[\w\d%-]+(?:\.\w+)?)&.*$', web_url)
+        drive = self.get_site(matches.group('site')).get_default_document_library()
+        file_name = matches.group('file_name')
+        results = [
+            item for item in drive.search(file_name)
+        ]
+        return results[0] if results else None
 
     def get_folder(self, *subfolders: str, site: str = None):
         if len(subfolders) == 0:
