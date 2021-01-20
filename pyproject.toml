@@ -6,10 +6,15 @@ authors = ["welocalize <aie-devel@welocalize.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+o365 = "^2.0.13"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "rypy"
+url = "https://pypi.rypy.tk/simple/"
+secondary = true
