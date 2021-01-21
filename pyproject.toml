@@ -1,12 +1,11 @@
 [tool.poetry]
 name = "welo365"
-version = "1.0.0"
+version = "2.0.1"
 description = ""
 authors = ["welocalize <aie-devel@welocalize.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-o365 = "^2.0.13"
 
 [tool.poetry.dev-dependencies]
 
@@ -14,7 +13,7 @@ o365 = "^2.0.13"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[[tool.poetry.source]]
-name = "rypy"
-url = "https://pypi.rypy.tk/simple/"
-secondary = true
+# [[tool.poetry.source]]
+# name = "rypy"
+# url = "https://pypi.rypy.tk/simple/"
+# secondary = true
