@@ -3,6 +3,9 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import re
+
+from urllib.parse import parse_qs, urlparse
 
 from O365 import Account, FileSystemTokenBackend
 from O365.connection import MSGraphProtocol
@@ -71,6 +74,23 @@ class O365Account(Account):
 
     def get_site(self, site: str):
         return self.sharepoint().get_site(DOMAIN, f"/sites/{site}")
+
+    def search(self, query: str):
+        u = urlparse(query)
+        site = None
+        drive = None
+        file_name = None
+        if (site_query := re.search(r'.*/sites/(?P<site>[\w_\-\d]+)/', u.path)):
+            if (site := site_query.group('site')):
+                site = self.get_site(site)
+                drive = site.get_default_document_library()
+        if (q := parse_qs(u.query)):
+            file_name = q.get('file', [''])[0]
+        drive = drive or self.drive
+        query = file_name or query
+        results = list(drive.search(query))
+        return results[0] if results else results
+
 
     def get_folder(self, *subfolders: str, site: str = None):
         if len(subfolders) == 0:
