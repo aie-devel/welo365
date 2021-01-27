@@ -29,6 +29,7 @@ fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
 DOMAIN = 'welocalize.sharepoint.com'
+TOKEN_PATH = Path(os.environ.get('welo365_token_path')).expanduser()
 CREDS = (os.environ.get('welo365_client_id'), os.environ.get('welo365_client_secret'))
 
 
@@ -40,16 +41,14 @@ class O365Account(Account):
             scopes: list[str] = None,
             auth_flow_type: str = 'authorization'
     ):
-        WORKDIR = Path.cwd()
+
+        TOKEN = TOKEN_PATH / 'o365_token.txt'
         token_backend = None
-        for token_path in [WORKDIR, *WORKDIR.parents]:
-            TOKEN = token_path / 'o365_token.txt'
-            if TOKEN.exists():
-                logger.debug(f"Using token file {TOKEN}")
-                token_backend = FileSystemTokenBackend(token_path=token_path)
-                token_backend.load_token()
-                token_backend.get_token()
-                break
+        if TOKEN.exists():
+            logger.debug(f"Using token file {TOKEN}")
+            token_backend = FileSystemTokenBackend(token_path=TOKEN_PATH)
+            token_backend.load_token()
+            token_backend.get_token()
         scopes = scopes or ['offline_access', 'Sites.Manage.All']
         OPTIONS = {
             'token_backend': token_backend
