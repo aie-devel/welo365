@@ -12,11 +12,36 @@ class Range(_Range):
 
     def __init__(self, parent=None, session=None, **kwargs):
         super().__init__(parent=parent, session=session, **kwargs)
+        self.ws = parent
         self.matchgroup = re.search(self.pattern, self.address).groupdict()
 
-    def update(self, values: list):
+    def batch_update(self, divs: int = 5):
+        range_length = len(self.values)
+        step = range_length // divs
+        top = self.top
+        left = self.left
+        right = self.right
+        batches = [(self.values[i:i+step], i+top) for i in range(0, len(self.values), step)]
+        for batch, start_row in batches:
+            update_address = f"{left}{start_row}:{right}{start_row + len(batch) - 1}"
+            print(update_address)
+            _range = self.ws.get_range(update_address)
+            _range.update(values=batch, allow_batch=False)
+
+    def update(self, values: list, divs: int = None, allow_batch: bool = True):
         self.values = values
-        super().update()
+        if allow_batch and (len(self.values) > 1000 or len(self.values[0]) > 1000):
+            divs = divs or (len(self.values) // 1000) + 1
+            return self.batch_update(divs=divs)
+        try:
+            super().update()
+        except (requests.exceptions.HTTPError, HTTPError):
+            logger.error(f"HTTP Error. Adjusting update shape.")
+            max_len = max(len(row) for row in self.values)
+            for row in self.values:
+                for i in range(max_len - len(row)):
+                    row.append('')
+            self.batch_update()
 
     @property
     def left(self):
@@ -28,11 +53,11 @@ class Range(_Range):
 
     @property
     def top(self):
-        return self.matchgroup.get('top')
+        return int(self.matchgroup.get('top'))
 
     @property
     def bottom(self):
-        return self.matchgroup.get('bottom')
+        return int(self.matchgroup.get('bottom'))
 
 
 class WorkSheet(_WorkSheet):
