@@ -6,6 +6,7 @@ import sys
 import re
 
 from urllib.parse import parse_qs, urlparse
+from welo365.logger import get_logger
 
 from O365 import Account, FileSystemTokenBackend
 from O365.connection import MSGraphProtocol
@@ -13,20 +14,7 @@ from pathlib import Path
 
 from welo365.sharepoint import Sharepoint
 
-logfile = Path.cwd() / 'output.log'
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-date_format = "%H:%M:%S"
-formatter = logging.Formatter(log_format, date_format)
-ch = logging.StreamHandler(sys.stderr)
-ch.setFormatter(formatter)
-ch.setLevel(logging.INFO)
-logger.addHandler(ch)
-fh = logging.FileHandler(logfile)
-fh.setFormatter(formatter)
-fh.setLevel(logging.DEBUG)
-logger.addHandler(fh)
+logger = get_logger(__file__)
 
 DOMAIN = 'welocalize.sharepoint.com'
 TOKEN_PATH = Path(os.environ.get('welo365_token_path')).expanduser()

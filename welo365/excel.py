@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import re
-
+import requests
+from welo365.logger import get_logger
 from O365.excel import Range as _Range
 from O365.excel import WorkBook as _WorkBook
 from O365.excel import WorkSheet as _WorkSheet
 
+
+logger = get_logger(__file__)
 
 class Range(_Range):
     pattern = r'^.*!(?P<left>[A-Z]+)(?P<top>[0-9]+)(:(?P<right>[A-Z]+)(?P<bottom>[0-9]+))?$'
