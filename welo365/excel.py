@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import requests
+from requests.exceptions import HTTPError
 from welo365.logger import get_logger
 from O365.excel import Range as _Range
 from O365.excel import WorkBook as _WorkBook
