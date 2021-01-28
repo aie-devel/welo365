@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "welo365"
-version = "2.0.6"
+version = "2.0.7"
 description = ""
 authors = ["welocalize <aie-devel@welocalize.com>"]
 
